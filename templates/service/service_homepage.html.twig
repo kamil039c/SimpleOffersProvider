@@ -1,0 +1,31 @@
+{% include 'service/service_orders.html.twig' %}
+			
+<div class="jumbotron">
+	<h1>Top 9 najczęściej wybieranych produktów</h1>
+				
+	<div class="card-columns">
+		{% for product in products %}
+			<div class="card">
+				{% if product.image is not empty %}
+					<img class="card-img-top modal_image_show" src="/image/{{ product.image }}" style="cursor: pointer;">
+				{% else %}
+					<img class="card-img-top" src="/image/placeholder.png">
+				{% endif %}
+				<div class="card-header">
+					{% if product.productType == 1 %}
+						<i class="fas fa-utensils iconblack" title="Danie" data-toggle="tooltip"></i>
+					{% else %}
+						<i class="fas fa-puzzle-piece iconblack" title="Dodatek do dania" data-toggle="tooltip"></i>
+					{% endif %} <b>{{ product.name }}</b>
+				</div>
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item"><i class="fas fa-shopping-cart iconblack" data-toggle="tooltip" title="Ilość zamówień na ten produkt od czasu dodania go do menu"></i> {{ product.getOrders() }}x</li>
+				</ul>
+			</div>
+		{% endfor %}
+	</div>
+</div>
+			
+<div class="jumbotron">
+	<a href="/order" class="btn btn-primary btn-lg" style="width: 100%;">Przejdź do menu restauracji</a>
+</div>

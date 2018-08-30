@@ -1,0 +1,30 @@
+<div class="jumbotron">
+	<h1>Twoje zamówienia ({{ orders|length }})</h1>
+	<div class="container" style="padding: 0px;">
+		<div class="row" style="padding: 5px 0px 5px 0px;">
+			<div class="col-lg">#</div>
+			<div class="col-lg">Stan</div>
+			<div class="col-lg">Info</div>
+			<div class="col-lg">Czas złożenia</div>
+			<div class="col-lg">Czas dostawy</div>
+			<div class="col-lg">Wartość</div>
+			<div class="col-lg-2">Postęp</div>
+		</div>
+		
+		{% for order in orders %}
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-lg">{{ order.id }}</div>
+				<div class="col-lg">{% if order.isAccepted == 1 %}Przyjęto {% else %}Oczekujące{% endif %}</div>
+				<div class="col-lg">{{ order.deliveryAdress }}<br>{{ order.phoneNumber }}</div>
+				<div class="col-lg">{{ order.orderTime|date("d.m.Y H:i:s") }}</div>
+				<div class="col-lg">{% if order.isAccepted == 1 %}{{ order.deliveryTime|date("d.m.Y H:i:s")}}{% else %} - {% endif %}</div>
+				<div class="col-lg">{{ order.totalPrice }} PLN</div>
+				<div class="col-lg-2">
+					<div class="progress">
+						<div style="width: {{ order.getProgress(100) }}%;" class="progress-bar progress-bar-striped {{ order.getProgressClass() }}" role="progressbar" aria-valuenow="{{ order.getProgress(1000) }}" aria-valuemin="0" aria-valuemax="1000"></div>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+</div>

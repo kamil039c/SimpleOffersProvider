@@ -1,0 +1,192 @@
+{% include 'service/service_orders.html.twig' %}
+
+{% if orderStage > 3%}	
+	<form action="/order_next_step/" method="POST">
+		<div class="jumbotron">
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-sm-12">
+					<div class="float-left">
+						<h1>Podsumowanie</h1>
+					</div>
+					<div class="float-right">
+						<a href="/order_data_step/" class="btn btn-primary btn-lg" role="button">&laquo; Wróć do poprzedniego kroku</a>
+					</div>
+				</div>
+			</div>
+					
+			<div class="container">
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-6">Płatność:</div>
+					<div class="col-sm-3">
+						<label class="form-check-label">
+							<input id="prod_type_1" type="radio" class="form-check-input" name="pay_type" value="1" checked/>Na miejscu Karta/Gotówka
+						</label>
+					</div>
+					<div class="col-sm-3">
+						<label class="form-check-label">
+							<input id="prod_type_2" type="radio" class="form-check-input" name="prod_type" value="2" disabled/>Kartą z góry
+						</label>
+					</div>
+				</div>
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-6">Adres dostawy:</div>
+					<div class="col-sm-6"><b>{{ orderData.delivery_address }}</b></div>
+				</div>
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-6">Kontakt - Numer telefonu:</div>
+					<div class="col-sm-6"><b>{{ orderData.phone_number }}</b></div>
+				</div>
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-6">Szacowany czas przygotowania zamówienia</div>
+					<div class="col-sm-6"><b>{{ orderData.estimated_time }} Godziny</b></div>
+				</div>
+				{% if user is not empty %}
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">Użyty kod rabatowy:</div>
+						<div class="col-sm-6"><b>{% if orderData.code is not empty %}{{ orderData.code.code }}{% else %}Żaden{% endif %}</b></div>
+					</div>
+				{% endif %}
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-12" style="font-size: 20px; font-weight: bold;">Do zapłaty: {{ productsOrderValue }} PLN</div>
+				</div>
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-12"><div id="recaptcha_3" class="g-recaptcha" data-sitekey="{{ constant('App\\Utils\\service::RECAPTHA_PUPLIC_KEY') }}" style="margin-bottom: 10px;"></div></div>
+				</div>
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-12" style="text-align: center;"><button type="submit" class="btn btn-success btn-lg link_confirm" style="width: 65%;" confirm-msg="Potwierdzając zobowiązujesz się do odebrania zamówienia oraz zapłaty">Zamawiam i płacę</button></div>
+				</div>
+			</div>
+		</div>
+	</form>
+{% elseif orderStage > 2%}
+	<form action="/order_next_step/" method="POST">
+		<div class="jumbotron">
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-sm-12">
+					<div class="float-left">
+						<h3>Dane kontaktowe i dane dostawy</h3>
+					</div>
+					<div class="float-right">
+						<button type="submit" class="btn btn-success btn-lg" role="button">Kontynuuj</a>
+					</div>
+				</div>
+				
+				<div class="container">
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">Adres dostawy:</div>
+						<div class="col-sm-6"><input name="delivery_address" type="text" maxlength="128" value="{% if user is not empty %}{{ user.deliveryAddress }}{% else %}{{ orderData.delivery_address }}{% endif %}" class="form-control" placeholder="Miasto, Ulica, nr. lokalu"></div>
+					</div>
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">Kontakt - Numer telefonu:</div>
+						<div class="col-sm-6"><input name="phone_number" type="text" maxlength="12" value="{% if user is not empty %}{{ user.phoneNumber }}{% else %}{{ orderData.phone_number }}{% endif %}" class="form-control" placeholder="np 519001002"></div>
+					</div>
+					{% if user is not empty %}
+						<div class="row" style="padding: 5px 0px 5px 0px;">
+							<div class="col-sm-6">Kod rabatowy (Opcjonalnie):</div>
+							<div class="col-sm-6"><input name="code" type="text" maxlength="8" value="{% if orderData.code is not empty %}{{ orderData.code.code }}{% endif %}" class="form-control" placeholder="Kod rabatowy"></div>
+						</div>
+					{% endif %}
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-12"><button type="submit" class="btn btn-primary">Kontynuuj</button></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+{% else %}
+	<div class="jumbotron">
+		<div class="row" style="padding: 5px 0px 5px 0px;">
+			<div class="col-sm-12">
+				<div class="float-left">
+					<h1>Menu restauracji ({{ productsCount }})</h1>
+					{% if orderStage == 2 %}
+						<h6>Wybierz dodatki do swojego zamówienia</h6>
+					{% else %}
+						<h6>Wybierz produkty do swojego zamówienia</h6>
+					{% endif %}
+				</div>
+				<div class="float-right">
+					{% if orderStage == 2 %}
+						<a href="/order_next_step/" class="btn btn-success btn-lg" role="button">Przejdź dalej</a>
+					{% else %}
+						{% if productsOrderCount > 0 %}
+							<a href="/order_next_step/" class="btn btn-success btn-lg" role="button">Wybierz dodatki</a>
+						{% else %}
+							<a href="#" class="btn btn-success btn-lg disabled" role="button" aria-disabled="true">Wybierz dodatki</a>
+						{% endif %}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+			
+		{% if maxPage > 0 %}
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-sm-12">
+					{% for i in range(0, maxPage) %}
+						<button style="margin: 3px;" type="button" class="btn{% if i != page %} btn-info{% else %} btn-primary{% endif %}" onclick="window.location.replace('/{{ mode }}/{{ i }}');">{{ (i + 1) }}</button>
+					{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+		
+		<div class="card-columns">
+			{% for product in products %}
+				<div class="card">
+					{% if product.image is not empty %}
+						<img class="card-img-top modal_image_show" src="/image/{{ product.image }}" style="cursor: pointer;">
+					{% else %}
+						<img class="card-img-top" src="/image/placeholder.png">
+					{% endif %}
+					
+					<div class="card-header"><b>{{ product.name }}</b></div>
+					
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">
+							{% if product.productType == 1 %}
+								<i class="fas fa-utensils iconblack" title="Danie" data-toggle="tooltip"></i>&nbsp;
+							{% else %}
+								<i class="fas fa-puzzle-piece iconblack" title="Dodatek do dania" data-toggle="tooltip"></i>
+							{% endif %}
+							<b>{{ product.productGroup }}</b>
+						</li>
+						<li class="list-group-item"><i class="fas fa-dollar-sign iconblack" title="Cena" data-toggle="tooltip"></i>&nbsp;&nbsp;&nbsp;{{ product.price }} PLN</li>
+						{% if product.prepareTime > 0 %}
+							<li class="list-group-item"><i class="far fa-clock iconblack" title="Średni czas przygotowywania tego posiłku" data-toggle="tooltip"></i> {{ product.prepareTime }} Minut</li>
+						{% else %}
+							<li class="list-group-item"><i class="far fa-clock iconblack"></i> Od ręki</li>
+						{% endif %}
+						<li class="list-group-item"><i class="fas fa-shopping-cart iconblack" data-toggle="tooltip" title="Ilość zamówień na ten produkt od czasu dodania go do menu"></i> {{ product.getOrders() }}x</li>
+					</ul>
+								
+					<div class="card-footer">
+						<div class="input-group">
+							<input type="number" class="form-control" value="1" id="prod_count_{{ product.id }}" min="1" max="100">
+							<div class="input-group-append">
+								<button type="button" class="btn btn-outline-success product_order" productid="{{ product.id }}"><i class="fas fa-shopping-cart iconblack"></i> Do koszyka</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endif %}
+			
+{% if promotions|length > 0%}
+	<div class="jumbotron">
+		<h3>Aktualne promocje ({{ promotions|length }})</h3>
+			
+		<div class="container" style="padding: 0px;">
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-lg">Wymaganie</div>
+				<div class="col-lg">Zniżka</div>
+			</div>
+			{% for promotion in promotions %}
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-lg">Zakup {{ promotion.quantityReq}}x produkt z grupy {{ promotion.productGroupReq }}</div>
+					<div class="col-lg">Zniżka {{ (promotion.discount * 100)|round }}% na 1x {{ promotion.productGroup}}</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endif %}

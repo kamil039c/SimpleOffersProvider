@@ -1,0 +1,24 @@
+<form action="/save_settings/" method="POST">
+	<div class="jumbotron">
+		<h1>Ustawienia konta</h1>
+		<div class="row" style="padding: 5px 0px 5px 0px;">
+			<div class="col-sm-6">Domyślny adres dostawy:</div>
+			<div class="col-sm-6"><input name="delivery_address" type="text" maxlength="128" value="{{ user.deliveryAddress }}" class="form-control" placeholder="Miasto, Ulica, nr. lokalu"></div>
+		</div>
+		<div class="row" style="padding: 5px 0px 5px 0px;">
+			<div class="col-sm-6">Kontakt - Numer telefonu:</div>
+			<div class="col-sm-6"><input name="phone_number" type="text" maxlength="12" value="{{ user.phoneNumber }}" class="form-control" placeholder="np 519001002"></div>
+		</div>
+		<div class="row" style="padding: 5px 0px 5px 0px;">
+			<div class="col-sm-6">Zmiana hasła [puste pole - bez zmian]:</div>
+			<div class="col-sm-6"><input name="new_pwd" type="password" class="form-control" placeholder="Nowe hasło"></div>
+		</div>
+		<div class="row" style="padding: 5px 0px 5px 0px;">
+			<div class="col-sm-6">Aktualne hasło:</div>
+			<div class="col-sm-6"><input name="pwd" type="password" class="form-control" placeholder="Aktualne hasło"></div>
+		</div>
+		<div class="row" style="padding: 5px 0px 5px 0px;">
+			<div class="col-sm-12"><button type="submit" class="btn btn-primary">Zapisz ustawienia</button></div>
+		</div>
+	</div>
+</form>

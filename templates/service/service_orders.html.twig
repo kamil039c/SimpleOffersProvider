@@ -1,0 +1,65 @@
+{% if orderStage > 0%}
+	<div class="jumbotron">
+		<h6>Twój koszyk ({{ productsOrderCount }} Produkty, {{ productsOrderValue }} PLN)
+			<button style="margin: 3px;" type="button" class="btn btn-success btn-sm" data-toggle="collapse" data-target="#productOrderList">&raquo; Pokaż zawartość koszyka</button>
+			<a href="/order_prod_remove_all/" style="margin: 3px;" class="btn btn-danger btn-sm link_confirm" confirm-msg="Skasować zawartość całego koszyka?">&raquo; Skasuj cały koszyk</a>
+			{% if orderStage > 2%}
+				<a href="/force_back_order/" style="margin: 3px;" class="btn btn-primary btn-sm">&raquo; Kontynuuj zakupy</a>
+			{% endif %}
+		</h6>
+		
+		<div id="productOrderList" class="container hidden collapse" style="padding: 0px;">
+			<div class="card-columns">
+				{% for id, order in productsOrder %}
+				<div class="card">
+					{#{% if order.0.image is not empty %}
+						<img class="card-img-top modal_image_show" src="/image/{{ order.0.image }}" style="cursor: pointer;">
+					{% else %}
+						<img class="card-img-top" src="/image/placeholder.png">
+					{% endif %}#}
+					
+					<div class="card-header">{{ order.0.name }}</div>
+					
+					<ul class="list-group list-group-flush">
+						<li class="list-group-item">
+							{% if order.0.productType == 1 %}
+								<i class="fas fa-utensils iconblack" title="Danie" data-toggle="tooltip"></i>
+							{% else %}
+								<i class="fas fa-puzzle-piece iconblack" title="Dodatek do dania" data-toggle="tooltip"></i>
+							{% endif %}{{ order.0.productGroup }}, {{ order.1 }}x
+						</li>
+						<li class="list-group-item"><i class="fas fa-dollar-sign iconblack" title="Cena zawierajaca wszystkie rabaty" data-toggle="tooltip"></i>&nbsp;&nbsp;&nbsp;{{ order.2 }} PLN</li>
+						<li class="list-group-item">Rabat: {{ order.6 }}%</li>
+					</ul>
+								
+					<div class="card-footer">
+						<a href="/order_prod_remove/{{ id }}/" class="btn btn-danger order_del">Skasuj</a>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+			{# ALTERNATYWNY PODGLĄD KOSZYKA
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-sm-3">Produkt</div>
+				<div class="col-sm">x</div>
+				<div class="col-sm"><i class="fas fa-dollar-sign iconblack" title="Cena" data-toggle="tooltip"></i> 1x</div>
+				<div class="col-sm"><i class="fas fa-dollar-sign iconblack" title="Cena" data-toggle="tooltip"></i></div>
+				<div class="col-sm">Promocja</div>
+				<div class="col-sm">Rabat</div>
+				<div class="col-sm"></div>
+			</div>
+			{% for id, productOrder in productsOrder %}
+				<div class="row" style="padding: 5px 0px 5px 0px;">
+					<div class="col-sm-3">{{ productOrder.0.name }}</div>
+					<div class="col-sm">{{ productOrder.1 }}x</div>
+					<div class="col-sm">{{ productOrder.0.price }} PLN</div>
+					<div class="col-sm">{{ productOrder.2 }} PLN</div>
+					<div class="col-sm">{{ productOrder.3 }}% {{ productOrder.4 }}szt</div>
+					<div class="col-sm">{{ productOrder.5 }}%</div>
+					<div class="col-sm"><a href="/order_prod_remove/{{ id }}/" class="btn btn-danger order_del">Skasuj</a></div>
+				</div>
+			{% endfor %}
+			#}
+		</div>
+	</div>
+{% endif %}

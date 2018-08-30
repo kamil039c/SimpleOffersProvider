@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<nav class="navbar navbar-expand-xl navbar-dark bg-dark">
+	<a class="navbar-brand" href="/">Offers Service Provider</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+</nav>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="alertModal">
+	<div class="modal-dialog" role="document">
+		<div id="alertModal_contentbox"></div>
+	</div>
+</div>
+
+<div class="vertical-center"> 
+	<div class="container main_round_box">
+		{% if offersProviderLoaded %}
+			{% if filterActive %}
+				<div class="row" style="padding: 1px 0px 5px 1px;">
+					<div class="col-sm-12">
+						{% if filters.only_active %}
+							<button style="margin: 3px;" type="button" class="btn btn-danger" onclick="window.location.replace('/remove_filter/only_active');" title="kliknij aby usunąć ten filtr">Tylko aktualne oferty</button>
+						{% endif %}
+
+						{% if filters.city is not empty %}
+							<button style="margin: 3px;" type="button" class="btn btn-danger" onclick="window.location.replace('/remove_filter/city');" title="kliknij aby usunąć ten filtr">Miasto: {{ filters.city }}</button>
+						{% endif %}
+
+						{% if filters.company_id > 0 %}
+							<button style="margin: 3px;" type="button" class="btn btn-danger" onclick="window.location.replace('/remove_filter/company_id');" title="kliknij aby usunąć ten filtr">ID Firmy: {{ filters.company_id }}</button>
+						{% endif %}
+
+						{% if filters.days_since_add > 0 %}
+							<button style="margin: 3px;" type="button" class="btn btn-danger" onclick="window.location.replace('/remove_filter/days_since_add');" title="kliknij aby usunąć ten filtr">Oferty nie starsze niz {{ filters.days_since_add }} Dni</button>
+						{% endif %}
+
+						{% if filters.admin_name is not empty %}
+							<button style="margin: 3px;" type="button" class="btn btn-danger" onclick="window.location.replace('/remove_filter/admin_name');" title="kliknij aby usunąć ten filtr">Stanowisko: {{ filters.admin_name }}</button>
+						{% endif %}
+					</div>
+				</div>
+			{% endif %}
+
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-sm-12">
+					<div class="float-left">Ilość ofert uwzględniając filtry: {{ offersProvider.getOffersCount() }}</div>
+					<button style="margin: 3px;" type="button" class="btn btn-success btn-sm float-right" data-toggle="collapse" data-target="#hiddenFiltersForm">&raquo; Filtruj oferty</button>
+				</div>
+			</div>
+
+			<div id="hiddenFiltersForm" class="container hidden collapse" style="padding: 0px;">
+				<form action="/save_filters" method="POST">
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">
+							Miasto:
+						</div>
+						<div class="col-sm-6">
+							<input name="city" type="text" maxlength="32" value="{{ filters.city }}" class="form-control" placeholder="np. Warszawa">
+						</div>
+					</div>
+
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">
+							ID Firmy:
+						</div>
+						<div class="col-sm-6">
+							<input name="company_id" type="text" maxlength="9" value="{{ filters.company_id > 0 ? filters.company_id : '' }}" class="form-control" placeholder="np. 9">
+						</div>
+					</div>
+
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">
+							Oferty nie starsze niż x dni:
+						</div>
+						<div class="col-sm-6">
+							<input name="days_since_add" type="text" maxlength="9" value="{{ filters.days_since_add > 0 ? filters.days_since_add : '' }}" class="form-control" placeholder="np. 7">
+						</div>
+					</div>
+
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">
+							Nazwa stanowiska:
+						</div>
+						<div class="col-sm-6">
+							<input name="admin_name" type="text" maxlength="32" value="{{ filters.admin_name }}" class="form-control" placeholder="np. Sprzedawca">
+						</div>
+					</div>
+
+					<div class="row" style="padding: 5px 0px 5px 0px;">
+						<div class="col-sm-6">
+							Tylko oferty aktywne:
+						</div>
+						<div class="col-sm-6">
+							<input name="only_active" type="checkbox" value="1" class="form-control" {{ filters.only_active ? 'checked' : ''}}>
+						</div>
+					</div>
+
+					<div class="col-sm-12">
+						<input style="margin: 3px;" type="submit" class="btn btn-success btn-lg" value="Zapisz wprowadzone filtry"/>
+					</div>
+				</form>
+			</div>
+
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-sm-12 float-right">
+					<div class="float-right">
+						Ofert na stronę:
+						{% for i in static('App\\Controller\\IndexController', 'oppPossibleValues') %}
+							<button style="margin: 3px;" type="button" class="btn{% if i != opp %} btn-warning{% else %} btn-info{% endif %}" onclick="window.location.replace('/setopp/{{ i }}');">{{ i }}</button>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+			<div class="row" style="padding: 5px 0px 5px 0px;">
+				<div class="col-sm-12">
+					{% for i in range(0, maxPage) %}
+						<button style="margin: 3px;" type="button" class="btn{% if i != page %} btn-warning{% else %} btn-info{% endif %}" onclick="window.location.replace('/setpage/{{ i }}');">{{ (i + 1) }}</button>
+					{% endfor %}
+				</div>
+			</div>
+
+			{% set offers = offersProvider.getOffersRange(startFrom, opp) %}
+
+			{% if offers|length > 0 %}
+				{% for offer in offersProvider.getOffersRange(startFrom, opp) %}
+					<div class="card" style="margin-bottom: 10px;">
+						<div class="card-header"><b>{{ offer.getAdminName() }}</b> {% if not offer.isActual() %} - <font class="text-danger" style="font-weight: bold; ">Oferta nieaktualna</font>{% endif %}</div>
+						<div class="card-body">
+							<ul class="list-group">
+								{% if offer.getCreatedBy() != 0 %}<li class="list-group-item">Company #{{ offer.getCreatedBy() }}</li>{% endif %}
+    							<li class="list-group-item">{{ offer.getCategories()|join(', ') }} - {{ offer.getPositions()|join(', ') }}</li>
+    							<li class="list-group-item">{{ offer.getCities()|join(', ') }}</li>
+
+								{% if offer.getContent() is not empty %}
+									<li class="list-group-item">{{ offer.getContent()|raw }}</li>
+								{% endif %}
+  							</ul>
+						</div>
+						<div class="card-footer text-muted">Od {{ offer.getDateStart() }} do {{ offer.getDateEnd() is empty ? '---' : offer.getDateEnd() }} {% if offer.isActual() %}, Ważna od: {{ offer.getDaysSinceAdd()}} Dni{% endif %}</div>
+					</div>
+				{% endfor %}
+			{% else %}
+				<div class="jumbotron">
+        			<h1 class="display-3">Brak ofert</h1>
+       				<p class="lead">Brak ofert spełniających wprowadzone kryteria</p>
+        			<p><a class="btn btn-lg btn-success" href="/resetfilters" role="button">Zresetuj filtry</a></p>
+      			</div>
+			{% endif %}
+		{% else %}
+			<div class="jumbotron">
+        		<h1 class="display-3">Lista niedostępna</h1>
+       			<p class="lead">Lista ofert jest tymaczasowo niedostępna. Sprbuj za chwię ponownie...</p>
+        		<p><a class="btn btn-lg btn-success" href="/" role="button">Odświerz stronę</a></p>
+      		</div>
+		{% endif %}
+	</div>
+</div>
+
+{% endblock %}
